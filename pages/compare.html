@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantity Measurement System</title>
+    <meta name="description" content="A modern and elegant web application for unit conversion and comparison.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/operations.css">
+</head>
+<body>
+
+    <div class="circles">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Message goes here</div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal hidden">
+        <div class="modal-content glass">
+            <button class="close-btn" onclick="toggleAuthModal()"><i class="fas fa-times"></i></button>
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchAuthTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchAuthTab('register')">Register</button>
+            </div>
+            
+            <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+
+            <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" required minlength="6" placeholder="Choose a password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" required minlength="6" placeholder="Confirm your password">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <main class="app-container">
+        
+        <aside class="sidebar glass">
+            <div class="logo">
+                <i class="fa-solid fa-scale-balanced fa-2x"></i>
+                <h2>MeasureX</h2>
+            </div>
+
+            
+            <nav class="nav-menu">
+                <a href="convert.html" class="nav-item "><i class="fa-solid fa-right-left"></i> Convert</a>
+                <a href="math.html" class="nav-item "><i class="fa-solid fa-calculator"></i> Math</a>
+                <a href="compare.html" class="nav-item active"><i class="fa-solid fa-scale-unbalanced"></i> Compare</a>
+                <a href="records.html" class="nav-item "><i class="fa-solid fa-clock-rotate-left"></i> History Records</a>
+            </nav>
+    
+
+            <div class="auth-status">
+                <div id="loggedOutState">
+                    <button class="btn btn-outline w-100" onclick="toggleAuthModal()">Login / Register</button>
+                </div>
+                <div id="loggedInState" class="hidden">
+                    <div class="user-info">
+                        <i class="fa-solid fa-circle-user fa-lg"></i>
+                        <span id="userNameDisplay">User</span>
+                    </div>
+                    <button class="btn btn-sm btn-logout w-100" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </aside>
+
+        <section class="main-content">
+            
+            <!-- Type Selector (Applies globally except records) -->
+            <div class="type-selector glass" id="typeSelectorCont">
+                <div class="type-option active" data-type="Length" onclick="changeMeasurementType('Length')">
+                    <i class="fa-solid fa-ruler"></i> Length
+                </div>
+                <div class="type-option" data-type="Volume" onclick="changeMeasurementType('Volume')">
+                    <i class="fa-solid fa-flask"></i> Volume
+                </div>
+                <div class="type-option" data-type="Weight" onclick="changeMeasurementType('Weight')">
+                    <i class="fa-solid fa-weight-hanging"></i> Weight
+                </div>
+                <div class="type-option" data-type="Temperature" onclick="changeMeasurementType('Temperature')">
+                    <i class="fa-solid fa-temperature-half"></i> Temperature
+                </div>
+            </div>
+
+            
+<div id="comparePane" class="pane active glass">
+                <h1 class="pane-title">Compare Quantities</h1>
+                <p class="pane-subtitle">Check equality or compare sizes of two quantities.</p>
+
+                <div class="operation-card">
+                    <div class="input-flex-container">
+                        <div class="qty-box">
+                            <h4>Quantity 1</h4>
+                            <div class="form-group">
+                                <label>Value</label>
+                                <input type="number" step="any" id="compVal1" placeholder="0.0" oninput="doCompare()">
+                            </div>
+                            <div class="form-group">
+                                <label>Unit</label>
+                                <select id="compUnit1" class="unit-select" onchange="doCompare()"></select>
+                            </div>
+                        </div>
+
+                        <div class="compare-op-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+
+                        <div class="qty-box">
+                            <h4>Quantity 2</h4>
+                            <div class="form-group">
+                                <label>Value</label>
+                                <input type="number" step="any" id="compVal2" placeholder="0.0" oninput="doCompare()">
+                            </div>
+                            <div class="form-group">
+                                <label>Unit</label>
+                                <select id="compUnit2" class="unit-select" onchange="doCompare()"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-box mt-2 text-center" id="compResultBox">
+                        <span id="compResultText" class="result-large">Result will appear here</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="../scripts/common.js"></script>
+    <script src="../scripts/compare.js"></script>
+</body>
+</html>

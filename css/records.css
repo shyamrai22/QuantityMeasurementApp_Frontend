@@ -1,0 +1,24 @@
+/* Tables for History */
+.table-container {
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+th {
+    background: rgba(255,255,255,0.05);
+    font-weight: 500;
+    color: var(--text-muted);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
