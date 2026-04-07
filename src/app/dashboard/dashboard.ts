@@ -139,7 +139,7 @@ export class DashboardComponent {
           unit2:         req.unit2,
           result:        String(res.result) + (res.unit ? ` ${res.unit}` : ''),
           timestamp:     new Date().toISOString(),
-          performedBy:   (this.currentUser()?.email || 'guest').trim().toLowerCase(),
+          performedBy:   (this.currentUser()?.email || 'Guest').trim().toLowerCase(),
         });
       },
       error: (err) => {

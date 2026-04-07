@@ -25,12 +25,12 @@ export class RecordService {
 
   getRecords(): Observable<OperationRecord[]> {
     const user = this.auth.currentUser();
-    const userEmail = user?.email || 'guest';
+    const userEmail = user?.email || 'Guest';
     const normalizedEmail = userEmail.trim().toLowerCase();
 
     // Filter mock records with case-insensitivity
     const filtered = this.mockRecords.filter(r => {
-      const recordEmail = (r.performedBy || 'guest').trim().toLowerCase();
+      const recordEmail = (r.performedBy || 'Guest').trim().toLowerCase();
       return recordEmail === normalizedEmail;
     });
 
