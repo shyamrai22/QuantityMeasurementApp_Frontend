@@ -1,0 +1,143 @@
+<div class="auth-bg">
+  <div class="auth-container animate-fadeInUp">
+
+    <div class="auth-header">
+      <div class="auth-logo">⚗️</div>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join <span class="text-gradient">QuantifyPro</span> for free</p>
+    </div>
+
+    @if (errorMsg()) {
+      <div class="alert alert-danger animate-fadeIn" id="register-error">⚠️ {{ errorMsg() }}</div>
+    }
+    @if (successMsg()) {
+      <div class="alert alert-success animate-fadeIn" id="register-success">✅ {{ successMsg() }}</div>
+    }
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate id="register-form">
+
+      <!-- Name Row -->
+      <div class="name-row">
+        <div class="form-group">
+          <label class="form-label" for="firstName">First Name</label>
+          <input
+            id="firstName"
+            type="text"
+            formControlName="firstName"
+            class="form-control"
+            [class.is-invalid]="f['firstName'].invalid && f['firstName'].touched"
+            placeholder="John"
+          />
+          @if (f['firstName'].touched && f['firstName'].hasError('required')) {
+            <span class="form-error">First name required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="lastName">Last Name</label>
+          <input
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            class="form-control"
+            [class.is-invalid]="f['lastName'].invalid && f['lastName'].touched"
+            placeholder="Doe"
+          />
+          @if (f['lastName'].touched && f['lastName'].hasError('required')) {
+            <span class="form-error">Last name required</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email Address</label>
+        <input
+          id="reg-email"
+          type="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="f['email'].invalid && f['email'].touched"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+        @if (f['email'].touched && f['email'].hasError('required')) {
+          <span class="form-error">Email is required</span>
+        } @else if (f['email'].touched && f['email'].hasError('email')) {
+          <span class="form-error">Enter a valid email address</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Password</label>
+        <div class="input-with-toggle">
+          <input
+            id="reg-password"
+            [type]="showPass() ? 'text' : 'password'"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="f['password'].invalid && f['password'].touched"
+            placeholder="Min 8 chars, 1 uppercase, 1 number"
+            autocomplete="new-password"
+          />
+          <button type="button" class="toggle-btn" id="btn-reg-toggle-pass" (click)="togglePass()" tabindex="-1">
+            @if (showPass()) { 👁️ } @else { 🔒 }
+          </button>
+        </div>
+        @if (f['password'].touched && f['password'].hasError('required')) {
+          <span class="form-error">Password is required</span>
+        } @else if (f['password'].touched && (f['password'].hasError('minlength') || f['password'].hasError('pattern'))) {
+          <span class="form-error">Min 8 chars, include uppercase letter and a number</span>
+        }
+        <!-- Strength bar -->
+        @if (f['password'].value) {
+          <div class="strength-bar">
+            <div
+              class="strength-fill"
+              [class]="getStrengthClass(f['password'].value)"
+            ></div>
+          </div>
+          <span class="strength-label" [class]="getStrengthClass(f['password'].value)">
+            {{ getStrengthLabel(f['password'].value) }}
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          [type]="showPass() ? 'text' : 'password'"
+          formControlName="confirmPassword"
+          class="form-control"
+          [class.is-invalid]="f['confirmPassword'].touched &&
+            (f['confirmPassword'].hasError('required') || registerForm.hasError('passwordMismatch'))"
+          placeholder="Re-enter password"
+          autocomplete="new-password"
+        />
+        @if (f['confirmPassword'].touched && f['confirmPassword'].hasError('required')) {
+          <span class="form-error">Please confirm your password</span>
+        } @else if (f['confirmPassword'].touched && registerForm.hasError('passwordMismatch')) {
+          <span class="form-error">Passwords do not match</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-full btn-lg"
+        id="btn-register-submit"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span class="spinner"></span> Creating account…
+        } @else {
+          Create Account
+        }
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account?
+      <a routerLink="/login" id="link-to-login">Sign in</a>
+    </p>
+  </div>
+</div>
