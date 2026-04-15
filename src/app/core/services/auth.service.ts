@@ -11,7 +11,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API_BASE = 'https://your-api.onrender.com/api';
+  private readonly API_BASE = 'https://quantitymeasurementapp-3-irmt.onrender.com/api';
   private readonly TOKEN_KEY = 'qm_jwt_token';
   private readonly USER_KEY  = 'qm_user_profile';
 
