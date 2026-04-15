@@ -1,0 +1,243 @@
+<div class="page-container">
+  <app-navbar></app-navbar>
+
+  <main class="main-content">
+
+    <!-- Welcome Header -->
+    <div class="page-header animate-fadeInUp">
+      <div class="welcome-row">
+        <div>
+          <h1 class="page-title">
+            Welcome back, <span class="text-gradient">{{ currentUser()?.email ?? 'Guest' }}</span> 👋
+          </h1>
+          <p class="page-subtitle">Select an operation below and start measuring</p>
+        </div>
+        @if (isLoggedIn()) {
+          <a routerLink="/records" class="btn btn-secondary" id="btn-view-records">
+            📋 View Records
+          </a>
+        }
+      </div>
+
+      <!-- Stats Strip -->
+      <div class="stats-strip">
+        <div class="stat-item">
+          <span class="stat-icon">📏</span>
+          <span class="stat-label">Length</span>
+          <span class="stat-value">8 units</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">⚖️</span>
+          <span class="stat-label">Weight</span>
+          <span class="stat-value">6 units</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">🌡️</span>
+          <span class="stat-label">Temperature</span>
+          <span class="stat-value">3 units</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">🧪</span>
+          <span class="stat-label">Volume</span>
+          <span class="stat-value">5 units</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operation Cards -->
+    <section class="section animate-fadeInUp" style="animation-delay: 0.1s">
+      <h2 class="section-title">Choose Operation</h2>
+      <div class="op-cards-grid">
+        @for (card of operationCards; track card.type) {
+          <button
+            class="op-card"
+            [class.selected]="selectedOp() === card.type"
+            [id]="'op-card-' + card.type"
+            (click)="selectOperation(card.type)"
+            [style.--card-gradient]="card.gradient"
+          >
+            <div class="op-icon">{{ card.icon }}</div>
+            <div class="op-info">
+              <span class="op-name">{{ card.label }}</span>
+              <span class="op-desc">{{ card.description }}</span>
+            </div>
+            @if (selectedOp() === card.type) {
+              <div class="op-check">✓</div>
+            }
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Calculation Panel (shown when operation selected) -->
+    @if (selectedOp()) {
+      <section class="calc-panel animate-fadeInUp" id="calc-panel">
+        <div class="calc-header">
+          <h2 class="section-title">
+            {{ operationCards | findCard : selectedOp() }}
+            <span class="selected-op-badge">{{ selectedOp() | uppercase }}</span>
+          </h2>
+          <button class="btn btn-secondary btn-sm" id="btn-reset-op" (click)="resetOperation()">
+            ✕ Change Operation
+          </button>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs" id="category-tabs">
+          @for (cat of categories; track cat.value) {
+            <button
+              class="cat-tab"
+              [class.active]="selectedCategory() === cat.value"
+              [id]="'cat-tab-' + cat.value"
+              (click)="selectCategory(cat.value)"
+            >
+              {{ cat.icon }} {{ cat.label }}
+            </button>
+          }
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="opForm" (ngSubmit)="calculate()" novalidate class="calc-form" id="calc-form">
+
+          @if (errorMsg()) {
+            <div class="alert alert-danger animate-fadeIn">⚠️ {{ errorMsg() }}</div>
+          }
+
+          <!-- Value 1 Row -->
+          <div class="input-row">
+            <div class="form-group flex-2">
+              <label class="form-label" for="value1">
+                {{ needsSecondValue ? 'First Value' : 'Value' }}
+              </label>
+              <input
+                id="value1"
+                type="number"
+                formControlName="value1"
+                class="form-control"
+                [class.is-invalid]="opForm.get('value1')!.invalid && opForm.get('value1')!.touched"
+                placeholder="e.g. 100"
+                step="any"
+              />
+              @if (opForm.get('value1')!.touched && opForm.get('value1')!.hasError('required')) {
+                <span class="form-error">Value is required</span>
+              }
+            </div>
+
+            <div class="form-group flex-1">
+              <label class="form-label" for="unit1">Unit</label>
+              <select
+                id="unit1"
+                formControlName="unit1"
+                class="form-control"
+                [class.is-invalid]="opForm.get('unit1')!.invalid && opForm.get('unit1')!.touched"
+              >
+                <option value="" disabled>Select</option>
+                @for (u of units(); track u.value) {
+                  <option [value]="u.value">{{ u.label }}</option>
+                }
+              </select>
+              @if (opForm.get('unit1')!.touched && opForm.get('unit1')!.hasError('required')) {
+                <span class="form-error">Unit required</span>
+              }
+            </div>
+          </div>
+
+          <!-- Value 2 Row (for add/subtract/compare) -->
+          @if (needsSecondValue) {
+            <div class="op-separator">
+              <span class="op-sep-icon">
+                @if (selectedOp() === 'add') { ➕ }
+                @else if (selectedOp() === 'subtract') { ➖ }
+                @else { ⚖️ }
+              </span>
+            </div>
+
+            <div class="input-row">
+              <div class="form-group flex-2">
+                <label class="form-label" for="value2">Second Value</label>
+                <input
+                  id="value2"
+                  type="number"
+                  formControlName="value2"
+                  class="form-control"
+                  [class.is-invalid]="opForm.get('value2')!.invalid && opForm.get('value2')!.touched"
+                  placeholder="e.g. 50"
+                  step="any"
+                />
+                @if (opForm.get('value2')!.touched && opForm.get('value2')!.hasError('required')) {
+                  <span class="form-error">Second value required</span>
+                }
+              </div>
+              <div class="form-group flex-1">
+                <label class="form-label" for="unit2">Unit</label>
+                <select
+                  id="unit2"
+                  formControlName="unit2"
+                  class="form-control"
+                  [class.is-invalid]="opForm.get('unit2')!.invalid && opForm.get('unit2')!.touched"
+                >
+                  <option value="" disabled>Select</option>
+                  @for (u of units(); track u.value) {
+                    <option [value]="u.value">{{ u.label }}</option>
+                  }
+                </select>
+                @if (opForm.get('unit2')!.touched && opForm.get('unit2')!.hasError('required')) {
+                  <span class="form-error">Unit required</span>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Target Unit (for convert) -->
+          @if (needsTargetUnit) {
+            <div class="form-group">
+              <label class="form-label" for="targetUnit">Convert To</label>
+              <select
+                id="targetUnit"
+                formControlName="targetUnit"
+                class="form-control"
+                [class.is-invalid]="opForm.get('targetUnit')!.invalid && opForm.get('targetUnit')!.touched"
+              >
+                <option value="" disabled>Select target unit</option>
+                @for (u of units(); track u.value) {
+                  <option [value]="u.value">{{ u.label }}</option>
+                }
+              </select>
+              @if (opForm.get('targetUnit')!.touched && opForm.get('targetUnit')!.hasError('required')) {
+                <span class="form-error">Target unit required</span>
+              }
+            </div>
+          }
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-lg"
+            id="btn-calculate"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              <span class="spinner"></span> Calculating…
+            } @else {
+              ⚡ Calculate
+            }
+          </button>
+        </form>
+
+        <!-- Result -->
+        @if (result()) {
+          <div class="result-box animate-fadeInUp" [class]="getResultClass()" id="result-box">
+            <div class="result-icon">{{ getResultIcon() }}</div>
+            <div class="result-content">
+              <div class="result-label">Result</div>
+              <div class="result-value">{{ result()!.result }}</div>
+              @if (result()!.unit) {
+                <div class="result-unit">{{ result()!.unit }}</div>
+              }
+            </div>
+            <div class="result-description">{{ result()!.description }}</div>
+          </div>
+        }
+      </section>
+    }
+  </main>
+</div>
